@@ -26,7 +26,7 @@ export async function signup(req, res) {
     }
 
     const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
-    const randomAvatar = `https://api.dicebear.com/10.x/avataaars/svg?seed=${idx}`;;
+    const randomAvatar = `https://api.dicebear.com/10.x/avataaars/svg?seed=${idx}`;
 
     const newUser = await User.create({
       email,
@@ -50,12 +50,14 @@ export async function signup(req, res) {
       expiresIn: "7d",
     });
 
-    res.cookie("jwt", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // prevent XSS attacks,
-      sameSite: "strict", // prevent CSRF attacks
-      secure: process.env.NODE_ENV === "production",
-    });
+   const isProduction = process.env.NODE_ENV === "production";
+
+res.cookie("jwt", token, {
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+});
 
     res.status(201).json({ success: true, user: newUser });
   } catch (error) {
@@ -82,12 +84,14 @@ export async function login(req, res) {
       expiresIn: "7d",
     });
 
-    res.cookie("jwt", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // prevent XSS attacks,
-      sameSite: "strict", // prevent CSRF attacks
-      secure: process.env.NODE_ENV === "production",
-    });
+   const isProduction = process.env.NODE_ENV === "production";
+
+res.cookie("jwt", token, {
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  sameSite: isProduction ? "none" : "lax",
+  secure: isProduction,
+});
 
     res.status(200).json({ success: true, user });
   } catch (error) {
@@ -97,8 +101,18 @@ export async function login(req, res) {
 }
 
 export function logout(req, res) {
-  res.clearCookie("jwt");
-  res.status(200).json({ success: true, message: "Logout successful" });
+  const isProduction = process.env.NODE_ENV === "production";
+
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
 }
 
 export async function onboard(req, res) {
