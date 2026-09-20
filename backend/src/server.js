@@ -15,9 +15,21 @@ const PORT = process.env.PORT || 5000;
 
 const __dirname = path.resolve();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chat-application-eta-smoky.vercel.app",
+  "https://chat-application-git-main-ashutosh246s-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "https://chat-application-eta-smoky.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true, // allow frontend to send cookies
   })
 );
