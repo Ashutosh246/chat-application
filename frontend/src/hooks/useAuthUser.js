@@ -5,9 +5,13 @@ const useAuthUser = () => {
   const authUser = useQuery({
     queryKey: ["authUser"],
     queryFn: getAuthUser,
-    retry: false, // auth check
+    retry: false,
   });
 
-  return { isLoading: authUser.isLoading, authUser: authUser.data?.user };
+  return {
+    isLoading: authUser.isLoading,
+    authUser: authUser.data?.user || null,
+  };
 };
+
 export default useAuthUser;
